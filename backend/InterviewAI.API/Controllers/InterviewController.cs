@@ -15,6 +15,14 @@ public class InterviewController : ControllerBase
         _interviewService = interviewService;
     }
 
+    // GET: api/interview/positions
+    [HttpGet("positions")]
+    public async Task<IActionResult> GetPositions()
+    {
+        var positions = await _interviewService.GetPositionsAsync();
+        return Ok(positions);
+    }
+
     // POST: api/interview/start
     [HttpPost("start")]
     public async Task<IActionResult> StartSession([FromBody] StartSessionRequest request)

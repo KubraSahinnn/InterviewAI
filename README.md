@@ -64,6 +64,9 @@ mysql -u root -p InterviewAIDb < database/stored_procedures/sp_CreateInterviewSe
 mysql -u root -p InterviewAIDb < database/stored_procedures/sp_SaveAnswer.sql
 mysql -u root -p InterviewAIDb < database/stored_procedures/sp_GetSessionAnswers.sql
 mysql -u root -p InterviewAIDb < database/stored_procedures/sp_InsertReport.sql
+mysql -u root -p InterviewAIDb < database/stored_procedures/sp_GetQuestionsByPosition.sql
+mysql -u root -p InterviewAIDb < database/stored_procedures/sp_GetPositions.sql
+mysql -u root -p InterviewAIDb < database/seed_data.sql
 ```
 
 ### Frontend
@@ -81,8 +84,8 @@ npm run dev
 - [x] Backend iskeleti (Controller → Service → Repository katmanları)
 - [x] Gemini API entegrasyon iskeleti
 - [x] Frontend iskeleti (Vite + React)
+- [x] Pozisyona göre soru havuzu ve uçtan uca mülakat akışı (pozisyon seç → soruları cevapla → rapor al)
 - [ ] Kullanıcı kayıt/giriş (JWT)
-- [ ] Pozisyona göre soru havuzu yönetimi
 - [ ] Gemini API yanıt parse mantığının tamamlanması
 - [ ] Ses/konuşma analizi entegrasyonu (opsiyonel genişletme)
 - [ ] Test kapsamı ve CI/CD

@@ -14,15 +14,20 @@ public class InterviewService : IInterviewService
         _aiAnalysisService = aiAnalysisService;
     }
 
+    public Task<List<PositionDto>> GetPositionsAsync()
+    {
+        return _repository.GetPositionsAsync();
+    }
+
     public async Task<SessionResponse> StartSessionAsync(StartSessionRequest request)
     {
         var sessionId = await _repository.CreateSessionAsync(request.UserId, request.PositionId);
+        var questions = await _repository.GetQuestionsByPositionAsync(request.PositionId);
 
-        // TODO: pozisyona göre soru havuzundan sorular çekilecek (sp_GetQuestionsByPosition)
         return new SessionResponse
         {
             SessionId = sessionId,
-            Questions = new List<QuestionDto>()
+            Questions = questions
         };
     }
 

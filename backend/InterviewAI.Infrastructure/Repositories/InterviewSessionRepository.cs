@@ -19,6 +19,16 @@ public class InterviewSessionRepository : IInterviewSessionRepository
 
     private IDbConnection CreateConnection() => new MySqlConnection(_connectionString);
 
+    public async Task<List<PositionDto>> GetPositionsAsync()
+    {
+        using var connection = CreateConnection();
+        var rows = await connection.QueryAsync<PositionDto>(
+            "sp_GetPositions",
+            commandType: CommandType.StoredProcedure);
+
+        return rows.ToList();
+    }
+
     public async Task<int> CreateSessionAsync(int userId, int positionId)
     {
         using var connection = CreateConnection();
@@ -33,6 +43,17 @@ public class InterviewSessionRepository : IInterviewSessionRepository
             commandType: CommandType.StoredProcedure);
 
         return parameters.Get<int>("p_NewSessionId");
+    }
+
+    public async Task<List<QuestionDto>> GetQuestionsByPositionAsync(int positionId)
+    {
+        using var connection = CreateConnection();
+        var rows = await connection.QueryAsync<QuestionDto>(
+            "sp_GetQuestionsByPosition",
+            new { p_PositionId = positionId },
+            commandType: CommandType.StoredProcedure);
+
+        return rows.ToList();
     }
 
     public async Task SaveAnswerAsync(SubmitAnswerRequest request)

@@ -7,6 +7,11 @@ async function handleResponse(response) {
   return response.json();
 }
 
+export async function getPositions() {
+  const response = await fetch(`${API_BASE_URL}/interview/positions`);
+  return handleResponse(response);
+}
+
 export async function startInterviewSession(userId, positionId) {
   const response = await fetch(`${API_BASE_URL}/interview/start`, {
     method: "POST",
