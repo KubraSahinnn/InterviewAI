@@ -1,0 +1,18 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+backend/**/*.user
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# IDE
+.vs/
+.vscode/
+*.suo
+
+# Sistem
+.DS_Store
+Thumbs.db
