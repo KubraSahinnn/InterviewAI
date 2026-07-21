@@ -43,7 +43,14 @@ public class InterviewController : ControllerBase
     [HttpGet("{sessionId:int}/report")]
     public async Task<IActionResult> GetReport(int sessionId)
     {
-        var report = await _interviewService.GenerateReportAsync(sessionId);
-        return Ok(report);
+        try
+        {
+            var report = await _interviewService.GenerateReportAsync(sessionId);
+            return Ok(report);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(502, new { error = "Rapor oluşturulamadı", detail = ex.Message });
+        }
     }
 }

@@ -62,12 +62,14 @@ public class GeminiAnalysisService : IAiAnalysisService
             url,
             new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json"));
 
-        response.EnsureSuccessStatusCode();
         var responseJson = await response.Content.ReadAsStringAsync();
 
-        // TODO: Gemini yanıtındaki text alanını parse edip JSON'a çevir.
-        // Şimdilik yer tutucu bir sonuç döndürüyoruz; gerçek parse mantığı
-        // Gemini'nin candidates[0].content.parts[0].text alanından okunmalı.
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                $"Gemini API hatası ({(int)response.StatusCode}): {responseJson}");
+        }
+
         using var doc = JsonDocument.Parse(responseJson);
         var text = doc.RootElement
             .GetProperty("candidates")[0]

@@ -1,10 +1,15 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://localhost:5001/api";
 
 async function handleResponse(response) {
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+
   if (!response.ok) {
-    throw new Error(`API hatası: ${response.status}`);
+    const detail = data?.detail || data?.error || `API hatası: ${response.status}`;
+    throw new Error(detail);
   }
-  return response.json();
+
+  return data;
 }
 
 export async function getPositions() {
