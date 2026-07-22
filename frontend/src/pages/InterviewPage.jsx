@@ -77,65 +77,130 @@ export default function InterviewPage() {
     setCurrentAnswer("");
   };
 
+  const selectedPositionTitle = positions.find(
+    (p) => String(p.id) === String(selectedPositionId)
+  )?.title;
+
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: 24, fontFamily: "sans-serif" }}>
-      <h1>InterviewAI &mdash; Mülakat Koçu</h1>
+    <div className="page">
+      <header className="masthead">
+        <p className="masthead__eyebrow">Aday Değerlendirme Formu</p>
+        <h1 className="masthead__title">
+          Interview<em>AI</em>
+        </h1>
+        <p className="masthead__sub">Yapay zeka destekli mülakat koçun</p>
+      </header>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-
-      {!session && !report && (
-        <div>
-          <label>
-            Hedef Pozisyon:{" "}
-            <select
-              value={selectedPositionId}
-              onChange={(e) => setSelectedPositionId(e.target.value)}
-            >
-              {positions.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div style={{ marginTop: 16 }}>
-            <button onClick={handleStart} disabled={loading || !selectedPositionId}>
-              Mülakatı Başlat
-            </button>
-          </div>
+      <div className="form-card">
+        <div className="form-card__header">
+          <span className="form-card__label">
+            {report ? "Değerlendirme Raporu" : session ? "Mülakat Oturumu" : "Yeni Oturum"}
+          </span>
+          {session && <span className="form-card__id">№ {session.sessionId}</span>}
         </div>
-      )}
 
-      {session && !report && (
-        <div style={{ marginTop: 16 }}>
-          <p style={{ color: "#666" }}>
-            Soru {currentIndex + 1} / {session.questions.length}
-          </p>
-          <h3>{session.questions[currentIndex]?.questionText}</h3>
-          <textarea
-            rows={5}
-            style={{ width: "100%" }}
-            value={currentAnswer}
-            onChange={(e) => setCurrentAnswer(e.target.value)}
-            placeholder="Cevabını buraya yaz..."
-          />
-          <div style={{ marginTop: 12 }}>
-            <button onClick={handleNext} disabled={loading || !currentAnswer.trim()}>
-              {currentIndex === session.questions.length - 1 ? "Bitir ve Rapor Al" : "Sonraki Soru"}
-            </button>
-          </div>
-        </div>
-      )}
+        <div className="form-card__body">
+          {error && <div className="error-banner">{error}</div>}
 
-      {report && (
-        <div style={{ marginTop: 16 }}>
-          <h2>Mülakat Raporu</h2>
-          <p><strong>Güçlü Yönler:</strong> {report.strengths}</p>
-          <p><strong>Geliştirilmesi Gereken Yönler:</strong> {report.areasToImprove}</p>
-          <p><strong>Genel Puan:</strong> {report.overallScore}</p>
-          <button onClick={handleRestart}>Yeni Mülakat Başlat</button>
+          {!session && !report && (
+            <div>
+              <div className="field-group">
+                <label className="field-label" htmlFor="position">
+                  Hedef Pozisyon
+                </label>
+                <select
+                  id="position"
+                  className="field-select"
+                  value={selectedPositionId}
+                  onChange={(e) => setSelectedPositionId(e.target.value)}
+                >
+                  {positions.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                className="primary-btn"
+                onClick={handleStart}
+                disabled={loading || !selectedPositionId}
+              >
+                {loading ? "Başlatılıyor…" : "Mülakatı Başlat"}
+              </button>
+            </div>
+          )}
+
+          {session && !report && (
+            <div>
+              <div className="punch-track">
+                {session.questions.map((_, i) => (
+                  <span
+                    key={i}
+                    className={
+                      "punch" +
+                      (i < currentIndex ? " punch--done" : "") +
+                      (i === currentIndex ? " punch--current" : "")
+                    }
+                  />
+                ))}
+                <span className="punch-count">
+                  {currentIndex + 1} / {session.questions.length} · {selectedPositionTitle}
+                </span>
+              </div>
+
+              <p className="question-text">{session.questions[currentIndex]?.questionText}</p>
+
+              <textarea
+                className="field-textarea"
+                rows={5}
+                value={currentAnswer}
+                onChange={(e) => setCurrentAnswer(e.target.value)}
+                placeholder="Cevabını buraya yaz…"
+              />
+
+              <div style={{ marginTop: 16 }}>
+                <button
+                  className="primary-btn"
+                  onClick={handleNext}
+                  disabled={loading || !currentAnswer.trim()}
+                >
+                  {loading
+                    ? "Kaydediliyor…"
+                    : currentIndex === session.questions.length - 1
+                    ? "Bitir ve Rapor Al"
+                    : "Sonraki Soru"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {report && (
+            <div className="report">
+              <div className="seal">
+                <span className="seal__score">{Math.round(report.overallScore)}</span>
+                <span className="seal__label">/ 100</span>
+              </div>
+
+              <div className="report-block report-block--strengths">
+                <p className="report-block__label">Güçlü Yönler</p>
+                <p className="report-block__text">{report.strengths}</p>
+              </div>
+
+              <div className="report-block report-block--improve">
+                <p className="report-block__label">Geliştirilmesi Gereken Yönler</p>
+                <p className="report-block__text">{report.areasToImprove}</p>
+              </div>
+
+              <button className="ghost-btn" onClick={handleRestart}>
+                Yeni Mülakat Başlat
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      </div>
+
+      <p className="footer-note">InterviewAI — Bandırma Onyedi Eylül Üniversitesi Bitirme Projesi</p>
     </div>
   );
 }
