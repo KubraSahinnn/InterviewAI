@@ -1,11 +1,14 @@
+using System.Security.Claims;
 using InterviewAI.Application.DTOs;
 using InterviewAI.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InterviewAI.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class InterviewController : ControllerBase
 {
     private readonly IInterviewService _interviewService;
@@ -15,8 +18,12 @@ public class InterviewController : ControllerBase
         _interviewService = interviewService;
     }
 
+    private int CurrentUserId =>
+        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
     // GET: api/interview/positions
     [HttpGet("positions")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetPositions()
     {
         var positions = await _interviewService.GetPositionsAsync();
@@ -27,7 +34,7 @@ public class InterviewController : ControllerBase
     [HttpPost("start")]
     public async Task<IActionResult> StartSession([FromBody] StartSessionRequest request)
     {
-        var session = await _interviewService.StartSessionAsync(request);
+        var session = await _interviewService.StartSessionAsync(CurrentUserId, request);
         return Ok(session);
     }
 

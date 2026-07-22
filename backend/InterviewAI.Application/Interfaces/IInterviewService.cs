@@ -5,7 +5,7 @@ namespace InterviewAI.Application.Interfaces;
 public interface IInterviewService
 {
     Task<List<PositionDto>> GetPositionsAsync();
-    Task<SessionResponse> StartSessionAsync(StartSessionRequest request);
+    Task<SessionResponse> StartSessionAsync(int userId, StartSessionRequest request);
     Task SaveAnswerAsync(SubmitAnswerRequest request);
     Task<InterviewReportDto> GenerateReportAsync(int sessionId);
 }

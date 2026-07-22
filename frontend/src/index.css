@@ -156,14 +156,18 @@ select {
   margin-bottom: 8px;
 }
 
-.field-select {
+.field-select,
+.field-input {
   width: 100%;
   padding: 12px 14px;
   border: 1.5px solid var(--color-paper-line);
   border-radius: 4px;
-  background: #fff;
+  background-color: #fff;
   font-size: 15px;
   color: var(--color-ink);
+}
+
+.field-select {
   appearance: none;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234a5568'><path d='M5.5 7.5l4.5 5 4.5-5' stroke='%234a5568' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   background-repeat: no-repeat;

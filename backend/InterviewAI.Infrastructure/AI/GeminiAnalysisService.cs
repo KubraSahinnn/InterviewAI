@@ -70,6 +70,9 @@ public class GeminiAnalysisService : IAiAnalysisService
                 $"Gemini API hatası ({(int)response.StatusCode}): {responseJson}");
         }
 
+        // TODO: Gemini yanıtındaki text alanını parse edip JSON'a çevir.
+        // Şimdilik yer tutucu bir sonuç döndürüyoruz; gerçek parse mantığı
+        // Gemini'nin candidates[0].content.parts[0].text alanından okunmalı.
         using var doc = JsonDocument.Parse(responseJson);
         var text = doc.RootElement
             .GetProperty("candidates")[0]

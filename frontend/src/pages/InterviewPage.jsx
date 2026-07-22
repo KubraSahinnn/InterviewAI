@@ -5,10 +5,9 @@ import {
   submitAnswer,
   getInterviewReport,
 } from "../services/interviewApi";
+import { clearSession } from "../services/authApi";
 
-const DEMO_USER_ID = 1; // TODO: gerçek kimlik doğrulama eklendiğinde giriş yapan kullanıcıdan alınacak
-
-export default function InterviewPage() {
+export default function InterviewPage({ user, onLogout }) {
   const [positions, setPositions] = useState([]);
   const [selectedPositionId, setSelectedPositionId] = useState("");
   const [session, setSession] = useState(null);
@@ -33,7 +32,7 @@ export default function InterviewPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await startInterviewSession(DEMO_USER_ID, Number(selectedPositionId));
+      const result = await startInterviewSession(Number(selectedPositionId));
       setSession(result);
       setCurrentIndex(0);
       setQuestionStartedAt(Date.now());
@@ -88,7 +87,19 @@ export default function InterviewPage() {
         <h1 className="masthead__title">
           Interview<em>AI</em>
         </h1>
-        <p className="masthead__sub">Yapay zeka destekli mülakat koçun</p>
+        <p className="masthead__sub">
+          Hoş geldin, {user?.name} ·{" "}
+          <button
+            className="ghost-btn"
+            style={{ width: "auto", padding: "2px 10px", fontSize: 12, display: "inline-block", marginTop: 0 }}
+            onClick={() => {
+              clearSession();
+              onLogout();
+            }}
+          >
+            Çıkış Yap
+          </button>
+        </p>
       </header>
 
       <div className="form-card">

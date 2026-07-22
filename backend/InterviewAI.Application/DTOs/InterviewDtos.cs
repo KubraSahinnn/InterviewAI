@@ -9,7 +9,6 @@ public class PositionDto
 
 public class StartSessionRequest
 {
-    public int UserId { get; set; }
     public int PositionId { get; set; }
 }
 

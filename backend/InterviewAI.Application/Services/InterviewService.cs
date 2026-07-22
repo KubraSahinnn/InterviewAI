@@ -19,9 +19,9 @@ public class InterviewService : IInterviewService
         return _repository.GetPositionsAsync();
     }
 
-    public async Task<SessionResponse> StartSessionAsync(StartSessionRequest request)
+    public async Task<SessionResponse> StartSessionAsync(int userId, StartSessionRequest request)
     {
-        var sessionId = await _repository.CreateSessionAsync(request.UserId, request.PositionId);
+        var sessionId = await _repository.CreateSessionAsync(userId, request.PositionId);
         var questions = await _repository.GetQuestionsByPositionAsync(request.PositionId);
 
         return new SessionResponse
