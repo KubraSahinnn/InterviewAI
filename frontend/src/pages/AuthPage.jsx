@@ -28,12 +28,34 @@ export default function AuthPage({ onAuthenticated }) {
   return (
     <div className="page">
       <header className="masthead">
-        <p className="masthead__eyebrow">Aday Değerlendirme Formu</p>
+        <span className="badge-pill">✦ Yapay Zeka Destekli</span>
         <h1 className="masthead__title">
           Interview<em>AI</em>
         </h1>
-        <p className="masthead__sub">Yapay zeka destekli mülakat koçun</p>
+        <p className="masthead__sub">Mülakatlarda kendine güven, yapay zekanın gücünü yanına al.</p>
       </header>
+
+      <div className="steps-strip">
+        <div className="step-item">
+          <span className="step-item__num">1</span>
+          <p className="step-item__title">Hesap Oluştur</p>
+        </div>
+        <span className="step-item__arrow">→</span>
+        <div className="step-item">
+          <span className="step-item__num">2</span>
+          <p className="step-item__title">Pozisyon Seç</p>
+        </div>
+        <span className="step-item__arrow">→</span>
+        <div className="step-item">
+          <span className="step-item__num">3</span>
+          <p className="step-item__title">Mülakatı Yaşa</p>
+        </div>
+        <span className="step-item__arrow">→</span>
+        <div className="step-item">
+          <span className="step-item__num">4</span>
+          <p className="step-item__title">Raporunu Al</p>
+        </div>
+      </div>
 
       <div className="form-card">
         <div className="form-card__header">
@@ -101,6 +123,26 @@ export default function AuthPage({ onAuthenticated }) {
           </button>
         </div>
       </div>
+
+      <div className="feature-strip">
+        <div className="feature-item">
+          <div className="feature-item__icon feature-item__icon--indigo">🧠</div>
+          <p className="feature-item__title">Yapay Zeka Analizi</p>
+          <p className="feature-item__text">Cevaplarını yapay zeka ile analiz et.</p>
+        </div>
+        <div className="feature-item">
+          <div className="feature-item__icon feature-item__icon--blue">📊</div>
+          <p className="feature-item__title">Anlık Geri Bildirim</p>
+          <p className="feature-item__text">Güçlü ve zayıf yönlerini hemen öğren.</p>
+        </div>
+        <div className="feature-item">
+          <div className="feature-item__icon feature-item__icon--gold">🎯</div>
+          <p className="feature-item__title">Pozisyona Özel Sorular</p>
+          <p className="feature-item__text">Hedef rolüne göre kişiselleştirilmiş sorular.</p>
+        </div>
+      </div>
+
+      <p className="footer-note">InterviewAI — Yapay Zeka Destekli Mülakat Koçu</p>
     </div>
   );
 }

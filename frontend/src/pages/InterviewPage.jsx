@@ -102,11 +102,11 @@ export default function InterviewPage({ user, onLogout }) {
       </div>
 
       <header className="masthead">
-        <p className="masthead__eyebrow">Aday Değerlendirme Formu</p>
+        <span className="badge-pill">✦ Yapay Zeka Destekli</span>
         <h1 className="masthead__title">
           Interview<em>AI</em>
         </h1>
-        <p className="masthead__sub">Yapay zeka destekli mülakat koçun</p>
+        <p className="masthead__sub">Mülakatlarda kendine güven, yapay zekanın gücünü yanına al.</p>
       </header>
 
       <div className="form-card">
@@ -218,7 +218,7 @@ export default function InterviewPage({ user, onLogout }) {
         </div>
       </div>
 
-      <p className="footer-note">InterviewAI — Bandırma Onyedi Eylül Üniversitesi Bitirme Projesi</p>
+      <p className="footer-note">InterviewAI — Yapay Zeka Destekli Mülakat Koçu</p>
     </div>
   );
 }
