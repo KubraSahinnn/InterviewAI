@@ -66,6 +66,8 @@ mysql -u root -p InterviewAIDb < database/stored_procedures/sp_GetSessionAnswers
 mysql -u root -p InterviewAIDb < database/stored_procedures/sp_InsertReport.sql
 mysql -u root -p InterviewAIDb < database/stored_procedures/sp_GetQuestionsByPosition.sql
 mysql -u root -p InterviewAIDb < database/stored_procedures/sp_GetPositions.sql
+mysql -u root -p InterviewAIDb < database/stored_procedures/sp_RegisterUser.sql
+mysql -u root -p InterviewAIDb < database/stored_procedures/sp_GetUserByEmail.sql
 mysql -u root -p InterviewAIDb < database/seed_data.sql
 ```
 
