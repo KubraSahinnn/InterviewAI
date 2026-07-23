@@ -56,6 +56,74 @@ select {
   padding: 56px 20px 80px;
 }
 
+/* ---- Profil çubuğu (üst, koyu zemin) ---- */
+.profile-bar {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.profile-bar__identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-bar__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-bar__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.profile-bar__name {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--color-paper);
+}
+
+.profile-bar__email {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.logout-btn {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-paper);
+  background: transparent;
+  border: 1.5px solid rgba(251, 247, 238, 0.35);
+  border-radius: 4px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.logout-btn:hover {
+  border-color: var(--color-gold);
+  background: rgba(201, 162, 39, 0.1);
+}
+
 .masthead {
   text-align: center;
   margin-bottom: 40px;

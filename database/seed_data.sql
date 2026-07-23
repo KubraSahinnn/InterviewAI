@@ -23,3 +23,5 @@ INSERT INTO InterviewQuestions (PositionId, QuestionText, QuestionType) VALUES
     (3, 'Stored procedure kullanmanın ORM''e göre avantaj ve dezavantajları nelerdir?', 'Teknik'),
     (3, 'Yüksek trafikli bir API''de performans darboğazını nasıl tespit edersin?', 'Teknik'),
     (3, 'Bir deadline''ı kaçırma riskiyle karşılaştığında ne yaparsın?', 'Davranışsal');
+
+SELECT * FROM InterviewAIDb.Positions;

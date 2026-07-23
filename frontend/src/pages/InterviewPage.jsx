@@ -82,24 +82,31 @@ export default function InterviewPage({ user, onLogout }) {
 
   return (
     <div className="page">
+      <div className="profile-bar">
+        <div className="profile-bar__identity">
+          <span className="profile-bar__avatar">{user?.name?.charAt(0)?.toUpperCase() || "?"}</span>
+          <span className="profile-bar__text">
+            <span className="profile-bar__name">{user?.name}</span>
+            <span className="profile-bar__email">{user?.email}</span>
+          </span>
+        </div>
+        <button
+          className="logout-btn"
+          onClick={() => {
+            clearSession();
+            onLogout();
+          }}
+        >
+          Çıkış Yap
+        </button>
+      </div>
+
       <header className="masthead">
         <p className="masthead__eyebrow">Aday Değerlendirme Formu</p>
         <h1 className="masthead__title">
           Interview<em>AI</em>
         </h1>
-        <p className="masthead__sub">
-          Hoş geldin, {user?.name} ·{" "}
-          <button
-            className="ghost-btn"
-            style={{ width: "auto", padding: "2px 10px", fontSize: 12, display: "inline-block", marginTop: 0 }}
-            onClick={() => {
-              clearSession();
-              onLogout();
-            }}
-          >
-            Çıkış Yap
-          </button>
-        </p>
+        <p className="masthead__sub">Yapay zeka destekli mülakat koçun</p>
       </header>
 
       <div className="form-card">
