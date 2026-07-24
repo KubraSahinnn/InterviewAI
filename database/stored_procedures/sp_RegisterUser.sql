@@ -1,5 +1,3 @@
-USE InterviewAIDb;
-
 DELIMITER $$
 
 CREATE PROCEDURE sp_RegisterUser(

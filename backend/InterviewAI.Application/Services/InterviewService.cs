@@ -43,4 +43,61 @@ public class InterviewService : IInterviewService
         await _repository.SaveReportAsync(report);
         return report;
     }
+
+    private const int TotalDynamicQuestions = 5;
+
+    public async Task<DynamicQuestionResponse> StartDynamicSessionAsync(int userId, StartSessionRequest request)
+    {
+        var position = await _repository.GetPositionByIdAsync(request.PositionId)
+            ?? throw new InvalidOperationException("Pozisyon bulunamadı.");
+
+        var sessionId = await _repository.CreateSessionAsync(userId, request.PositionId);
+        var questionText = await _aiAnalysisService.GenerateFirstQuestionAsync(position.Title, position.Description);
+
+        return new DynamicQuestionResponse
+        {
+            SessionId = sessionId,
+            QuestionNumber = 1,
+            QuestionText = questionText,
+            IsFinal = false,
+            TotalQuestions = TotalDynamicQuestions
+        };
+    }
+
+    public async Task<DynamicQuestionResponse> SubmitDynamicAnswerAsync(SubmitDynamicAnswerRequest request)
+    {
+        await _repository.SaveDynamicAnswerAsync(
+            request.SessionId,
+            request.QuestionNumber,
+            request.QuestionText,
+            request.AnswerText,
+            request.AnswerDurationSeconds);
+
+        if (request.QuestionNumber >= TotalDynamicQuestions)
+        {
+            return new DynamicQuestionResponse
+            {
+                SessionId = request.SessionId,
+                QuestionNumber = request.QuestionNumber,
+                IsFinal = true,
+                TotalQuestions = TotalDynamicQuestions
+            };
+        }
+
+        var position = await _repository.GetPositionByIdAsync(request.PositionId)
+            ?? throw new InvalidOperationException("Pozisyon bulunamadı.");
+        var history = await _repository.GetSessionAnswersAsync(request.SessionId);
+
+        var nextQuestion = await _aiAnalysisService.GenerateNextQuestionAsync(
+            position.Title, position.Description, history);
+
+        return new DynamicQuestionResponse
+        {
+            SessionId = request.SessionId,
+            QuestionNumber = request.QuestionNumber + 1,
+            QuestionText = nextQuestion,
+            IsFinal = false,
+            TotalQuestions = TotalDynamicQuestions
+        };
+    }
 }

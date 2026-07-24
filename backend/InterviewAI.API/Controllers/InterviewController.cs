@@ -60,4 +60,36 @@ public class InterviewController : ControllerBase
             return StatusCode(502, new { error = "Rapor oluşturulamadı", detail = ex.Message });
         }
     }
+
+    // ---- Dinamik (yapay zeka tarafından anlık üretilen) mülakat akışı ----
+
+    // POST: api/interview/dynamic/start
+    [HttpPost("dynamic/start")]
+    public async Task<IActionResult> StartDynamicSession([FromBody] StartSessionRequest request)
+    {
+        try
+        {
+            var result = await _interviewService.StartDynamicSessionAsync(CurrentUserId, request);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(502, new { error = "Mülakat başlatılamadı", detail = ex.Message });
+        }
+    }
+
+    // POST: api/interview/dynamic/next
+    [HttpPost("dynamic/next")]
+    public async Task<IActionResult> SubmitDynamicAnswer([FromBody] SubmitDynamicAnswerRequest request)
+    {
+        try
+        {
+            var result = await _interviewService.SubmitDynamicAnswerAsync(request);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(502, new { error = "Sonraki soru üretilemedi", detail = ex.Message });
+        }
+    }
 }

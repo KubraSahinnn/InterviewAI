@@ -24,6 +24,42 @@ public class GeminiAnalysisService : IAiAnalysisService
             ?? "https://generativelanguage.googleapis.com/v1beta/models/";
     }
 
+    // ---- Ortak: Gemini'ye prompt gönderip düz metin cevabı alan yardımcı metot ----
+    private async Task<string> CallGeminiAsync(string prompt)
+    {
+        var requestBody = new
+        {
+            contents = new[]
+            {
+                new { parts = new[] { new { text = prompt } } }
+            }
+        };
+
+        var url = $"{_baseUrl}{_model}:generateContent?key={_apiKey}";
+        var response = await _httpClient.PostAsync(
+            url,
+            new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json"));
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                $"Gemini API hatası ({(int)response.StatusCode}): {responseJson}");
+        }
+
+        using var doc = JsonDocument.Parse(responseJson);
+        var text = doc.RootElement
+            .GetProperty("candidates")[0]
+            .GetProperty("content")
+            .GetProperty("parts")[0]
+            .GetProperty("text")
+            .GetString() ?? "";
+
+        return text.Trim();
+    }
+
+    // ---- Mülakat sonu değerlendirme raporu ----
     public async Task<InterviewReportDto> AnalyzeAnswersAsync(int sessionId, List<(string Question, string Answer)> qaPairs)
     {
         var transcript = new StringBuilder();
@@ -49,39 +85,8 @@ public class GeminiAnalysisService : IAiAnalysisService
             {{transcript}}
             """;
 
-        var requestBody = new
-        {
-            contents = new[]
-            {
-                new { parts = new[] { new { text = prompt } } }
-            }
-        };
-
-        var url = $"{_baseUrl}{_model}:generateContent?key={_apiKey}";
-        var response = await _httpClient.PostAsync(
-            url,
-            new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json"));
-
-        var responseJson = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException(
-                $"Gemini API hatası ({(int)response.StatusCode}): {responseJson}");
-        }
-
-        // TODO: Gemini yanıtındaki text alanını parse edip JSON'a çevir.
-        // Şimdilik yer tutucu bir sonuç döndürüyoruz; gerçek parse mantığı
-        // Gemini'nin candidates[0].content.parts[0].text alanından okunmalı.
-        using var doc = JsonDocument.Parse(responseJson);
-        var text = doc.RootElement
-            .GetProperty("candidates")[0]
-            .GetProperty("content")
-            .GetProperty("parts")[0]
-            .GetProperty("text")
-            .GetString() ?? "{}";
-
-        var cleaned = text.Replace("```json", "").Replace("```", "").Trim();
+        var rawText = await CallGeminiAsync(prompt);
+        var cleaned = rawText.Replace("```json", "").Replace("```", "").Trim();
         var parsed = JsonSerializer.Deserialize<GeminiReportResult>(cleaned,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -92,6 +97,52 @@ public class GeminiAnalysisService : IAiAnalysisService
             AreasToImprove = parsed?.AreasToImprove ?? "",
             OverallScore = parsed?.OverallScore ?? 0
         };
+    }
+
+    // ---- Dinamik mülakat: ilk soru ----
+    public async Task<string> GenerateFirstQuestionAsync(string positionTitle, string positionDescription)
+    {
+        var prompt = $$"""
+            Sen deneyimli bir İK uzmanısın ve şu an "{{positionTitle}}" pozisyonu için
+            bir adayla sözlü mülakat yapıyorsun. Pozisyon açıklaması: {{positionDescription}}
+
+            Mülakatın ilk sorusunu sor. Doğal, samimi ama profesyonel bir üslup kullan.
+            SADECE soruyu yaz; selamlama, açıklama veya başka hiçbir ek metin ekleme.
+            """;
+
+        return await CallGeminiAsync(prompt);
+    }
+
+    // ---- Dinamik mülakat: önceki cevaplara göre bir sonraki soru ----
+    public async Task<string> GenerateNextQuestionAsync(
+        string positionTitle,
+        string positionDescription,
+        List<(string Question, string Answer)> history)
+    {
+        var transcript = new StringBuilder();
+        var index = 1;
+        foreach (var (question, answer) in history)
+        {
+            transcript.AppendLine($"Soru {index}: {question}");
+            transcript.AppendLine($"Cevap {index}: {answer}");
+            transcript.AppendLine();
+            index++;
+        }
+
+        var prompt = $$"""
+            Sen deneyimli bir İK uzmanısın ve "{{positionTitle}}" pozisyonu için bir adayla
+            sözlü mülakat yapıyorsun. Pozisyon açıklaması: {{positionDescription}}
+
+            Şimdiye kadarki mülakat dökümü:
+            {{transcript}}
+
+            Adayın en son verdiği cevaba göre, mülakatı derinleştirecek bir sonraki soruyu sor.
+            Önceki sorularla aynı konuyu tekrar etme; ya cevaptaki bir detayı daha derin sorgula
+            ya da farklı bir yetkinliği (teknik bilgi, problem çözme, takım çalışması, iletişim vb.) test et.
+            SADECE soruyu yaz; açıklama veya başka hiçbir ek metin ekleme.
+            """;
+
+        return await CallGeminiAsync(prompt);
     }
 
     private class GeminiReportResult

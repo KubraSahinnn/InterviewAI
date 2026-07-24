@@ -2,6 +2,7 @@ using System.Data;
 using Dapper;
 using InterviewAI.Application.DTOs;
 using InterviewAI.Application.Interfaces;
+using InterviewAI.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 
@@ -27,6 +28,17 @@ public class InterviewSessionRepository : IInterviewSessionRepository
             commandType: CommandType.StoredProcedure);
 
         return rows.ToList();
+    }
+
+    public async Task<Position?> GetPositionByIdAsync(int positionId)
+    {
+        using var connection = CreateConnection();
+        var position = await connection.QueryFirstOrDefaultAsync<Position>(
+            "sp_GetPositionById",
+            new { p_PositionId = positionId },
+            commandType: CommandType.StoredProcedure);
+
+        return position;
     }
 
     public async Task<int> CreateSessionAsync(int userId, int positionId)
@@ -67,6 +79,22 @@ public class InterviewSessionRepository : IInterviewSessionRepository
 
         await connection.ExecuteAsync(
             "sp_SaveAnswer",
+            parameters,
+            commandType: CommandType.StoredProcedure);
+    }
+
+    public async Task SaveDynamicAnswerAsync(int sessionId, int questionNumber, string questionText, string answerText, int durationSeconds)
+    {
+        using var connection = CreateConnection();
+        var parameters = new DynamicParameters();
+        parameters.Add("p_SessionId", sessionId);
+        parameters.Add("p_QuestionNumber", questionNumber);
+        parameters.Add("p_QuestionText", questionText);
+        parameters.Add("p_AnswerText", answerText);
+        parameters.Add("p_DurationSeconds", durationSeconds);
+
+        await connection.ExecuteAsync(
+            "sp_SaveDynamicAnswer",
             parameters,
             commandType: CommandType.StoredProcedure);
     }

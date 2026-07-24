@@ -48,3 +48,37 @@ export async function getInterviewReport(sessionId) {
   });
   return handleResponse(response);
 }
+
+// ---- Dinamik (yapay zeka tarafından anlık üretilen) mülakat akışı ----
+
+export async function startDynamicInterview(positionId) {
+  const response = await fetch(`${API_BASE_URL}/interview/dynamic/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ positionId }),
+  });
+  return handleResponse(response);
+}
+
+export async function submitDynamicAnswer({
+  sessionId,
+  positionId,
+  questionNumber,
+  questionText,
+  answerText,
+  answerDurationSeconds,
+}) {
+  const response = await fetch(`${API_BASE_URL}/interview/dynamic/next`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({
+      sessionId,
+      positionId,
+      questionNumber,
+      questionText,
+      answerText,
+      answerDurationSeconds,
+    }),
+  });
+  return handleResponse(response);
+}

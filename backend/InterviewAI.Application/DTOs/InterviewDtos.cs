@@ -32,6 +32,25 @@ public class SubmitAnswerRequest
     public int AnswerDurationSeconds { get; set; }
 }
 
+public class DynamicQuestionResponse
+{
+    public int SessionId { get; set; }
+    public int QuestionNumber { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public bool IsFinal { get; set; }
+    public int TotalQuestions { get; set; }
+}
+
+public class SubmitDynamicAnswerRequest
+{
+    public int SessionId { get; set; }
+    public int PositionId { get; set; }
+    public int QuestionNumber { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public string AnswerText { get; set; } = string.Empty;
+    public int AnswerDurationSeconds { get; set; }
+}
+
 public class InterviewReportDto
 {
     public int SessionId { get; set; }

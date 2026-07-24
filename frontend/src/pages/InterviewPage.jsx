@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import {
   getPositions,
-  startInterviewSession,
-  submitAnswer,
+  startDynamicInterview,
+  submitDynamicAnswer,
   getInterviewReport,
 } from "../services/interviewApi";
 import { clearSession } from "../services/authApi";
@@ -10,12 +10,12 @@ import { clearSession } from "../services/authApi";
 export default function InterviewPage({ user, onLogout }) {
   const [positions, setPositions] = useState([]);
   const [selectedPositionId, setSelectedPositionId] = useState("");
-  const [session, setSession] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [session, setSession] = useState(null); // { sessionId, positionId, questionNumber, questionText, totalQuestions }
   const [currentAnswer, setCurrentAnswer] = useState("");
   const [questionStartedAt, setQuestionStartedAt] = useState(null);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingLabel, setLoadingLabel] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -30,35 +30,54 @@ export default function InterviewPage({ user, onLogout }) {
   const handleStart = async () => {
     if (!selectedPositionId) return;
     setLoading(true);
+    setLoadingLabel("İlk soru hazırlanıyor…");
     setError("");
     try {
-      const result = await startInterviewSession(Number(selectedPositionId));
-      setSession(result);
-      setCurrentIndex(0);
+      const positionId = Number(selectedPositionId);
+      const result = await startDynamicInterview(positionId);
+      setSession({
+        sessionId: result.sessionId,
+        positionId,
+        questionNumber: result.questionNumber,
+        questionText: result.questionText,
+        totalQuestions: result.totalQuestions,
+      });
       setQuestionStartedAt(Date.now());
     } catch (err) {
       setError("Mülakat başlatılamadı: " + err.message);
     } finally {
       setLoading(false);
+      setLoadingLabel("");
     }
   };
 
   const handleNext = async () => {
     if (!session) return;
-    const question = session.questions[currentIndex];
     const durationSeconds = Math.round((Date.now() - questionStartedAt) / 1000);
+    const isLastQuestion = session.questionNumber >= session.totalQuestions;
 
     setLoading(true);
+    setLoadingLabel(isLastQuestion ? "Raporun hazırlanıyor…" : "Sıradaki soru hazırlanıyor…");
     setError("");
     try {
-      await submitAnswer(session.sessionId, question.questionId, currentAnswer, durationSeconds);
+      const result = await submitDynamicAnswer({
+        sessionId: session.sessionId,
+        positionId: session.positionId,
+        questionNumber: session.questionNumber,
+        questionText: session.questionText,
+        answerText: currentAnswer,
+        answerDurationSeconds: durationSeconds,
+      });
 
-      const isLastQuestion = currentIndex === session.questions.length - 1;
-      if (isLastQuestion) {
-        const result = await getInterviewReport(session.sessionId);
-        setReport(result);
+      if (result.isFinal) {
+        const finalReport = await getInterviewReport(session.sessionId);
+        setReport(finalReport);
       } else {
-        setCurrentIndex((i) => i + 1);
+        setSession((s) => ({
+          ...s,
+          questionNumber: result.questionNumber,
+          questionText: result.questionText,
+        }));
         setCurrentAnswer("");
         setQuestionStartedAt(Date.now());
       }
@@ -66,13 +85,13 @@ export default function InterviewPage({ user, onLogout }) {
       setError("Cevap kaydedilemedi: " + err.message);
     } finally {
       setLoading(false);
+      setLoadingLabel("");
     }
   };
 
   const handleRestart = () => {
     setSession(null);
     setReport(null);
-    setCurrentIndex(0);
     setCurrentAnswer("");
   };
 
@@ -144,7 +163,7 @@ export default function InterviewPage({ user, onLogout }) {
                 onClick={handleStart}
                 disabled={loading || !selectedPositionId}
               >
-                {loading ? "Başlatılıyor…" : "Mülakatı Başlat"}
+                {loading ? loadingLabel || "Başlatılıyor…" : "Mülakatı Başlat"}
               </button>
             </div>
           )}
@@ -152,22 +171,28 @@ export default function InterviewPage({ user, onLogout }) {
           {session && !report && (
             <div>
               <div className="punch-track">
-                {session.questions.map((_, i) => (
+                {Array.from({ length: session.totalQuestions }).map((_, i) => (
                   <span
                     key={i}
                     className={
                       "punch" +
-                      (i < currentIndex ? " punch--done" : "") +
-                      (i === currentIndex ? " punch--current" : "")
+                      (i < session.questionNumber - 1 ? " punch--done" : "") +
+                      (i === session.questionNumber - 1 ? " punch--current" : "")
                     }
                   />
                 ))}
                 <span className="punch-count">
-                  {currentIndex + 1} / {session.questions.length} · {selectedPositionTitle}
+                  {session.questionNumber} / {session.totalQuestions} · {selectedPositionTitle}
                 </span>
               </div>
 
-              <p className="question-text">{session.questions[currentIndex]?.questionText}</p>
+              {loading ? (
+                <p className="question-text" style={{ opacity: 0.6 }}>
+                  {loadingLabel}
+                </p>
+              ) : (
+                <p className="question-text">{session.questionText}</p>
+              )}
 
               <textarea
                 className="field-textarea"
@@ -175,6 +200,7 @@ export default function InterviewPage({ user, onLogout }) {
                 value={currentAnswer}
                 onChange={(e) => setCurrentAnswer(e.target.value)}
                 placeholder="Cevabını buraya yaz…"
+                disabled={loading}
               />
 
               <div style={{ marginTop: 16 }}>
@@ -184,8 +210,8 @@ export default function InterviewPage({ user, onLogout }) {
                   disabled={loading || !currentAnswer.trim()}
                 >
                   {loading
-                    ? "Kaydediliyor…"
-                    : currentIndex === session.questions.length - 1
+                    ? loadingLabel || "Kaydediliyor…"
+                    : session.questionNumber === session.totalQuestions
                     ? "Bitir ve Rapor Al"
                     : "Sonraki Soru"}
                 </button>
